@@ -23,7 +23,7 @@ jobs:
 
   build:
     needs: [pre-build]
-    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/build.yml@gh-actions
+    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/build.yml@master
     with:
       tag: ${{ needs.pre-build.outputs.tag }}
       AWS_ACCOUNT_ID: 244531986313
