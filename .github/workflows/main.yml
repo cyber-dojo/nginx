@@ -21,9 +21,13 @@ jobs:
         echo "TAG=${TAG}" >> ${GITHUB_ENV}
         echo ::set-output name=tag::${TAG}
 
-  build:
+  build-test-push-dockerhub:
     needs: [pre-build]
-    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/build.yml@master
+    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/build_test_push_dockerhub.yml@master
+
+  build-push-ecr:
+    needs: [pre-build, build-test-push-dockerhub]
+    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/build_push_ecr.yml@master
     with:
       tag: ${{ needs.pre-build.outputs.tag }}
       docker_context: ./
@@ -34,7 +38,7 @@ jobs:
       gh_actions_iam_role_name: gh_actions_services
   
   deploy-staging:
-    needs: [pre-build, build]
+    needs: [pre-build, build-test-push-dockerhub, build-push-ecr]
     uses: cyber-dojo/reusable-actions-workflows/.github/workflows/deploy.yml@master
     with:
       tagged_image: 244531986313.dkr.ecr.eu-central-1.amazonaws.com/nginx:${{ needs.pre-build.outputs.tag }}
@@ -45,7 +49,7 @@ jobs:
       environment_name: staging
 
   deploy-prod:
-    needs: [pre-build, build, deploy-staging]
+    needs: [pre-build, build-test-push-dockerhub, build-push-ecr, deploy-staging]
     uses: cyber-dojo/reusable-actions-workflows/.github/workflows/deploy.yml@master
     with:
       tagged_image: 274425519734.dkr.ecr.eu-central-1.amazonaws.com/creator:${{ needs.pre-build.outputs.tag }}
