@@ -44,13 +44,13 @@ jobs:
       environment_url: https://beta.cyber-dojo.org
       environment_name: staging
 
-  #deploy-prod:
-  #  needs: [pre-build, build, deploy-staging]
-  #  environment: 
-  #    name: production
-  #    url: https://prod.cyber-dojo.org
-  #  uses: cyber-dojo/creator/.github/workflows/deploy.yml@master
-  #  with:
-  #    tagged_image: 274425519734.dkr.ecr.eu-central-1.amazonaws.com/creator:${{ needs.pre-build.outputs.tag }}
-  #    AWS_ACCOUNT_ID: 274425519734
-  #    AWS_REGION: eu-central-1
+  deploy-prod:
+    needs: [pre-build, build, deploy-staging]
+    environment: 
+      name: production
+      url: https://prod.cyber-dojo.org
+    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/deploy.yml@master
+    with:
+      tagged_image: 274425519734.dkr.ecr.eu-central-1.amazonaws.com/creator:${{ needs.pre-build.outputs.tag }}
+      AWS_ACCOUNT_ID: 274425519734
+      AWS_REGION: eu-central-1
