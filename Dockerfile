@@ -1,4 +1,5 @@
-FROM nginx:latest
+ARG BASE_IMAGE=nginx:1.25.2
+FROM ${BASE_IMAGE}
 LABEL maintainer=jon@jaggersoft.com
 
 ARG NGINX_DIR=/usr/share/nginx/html
@@ -10,7 +11,12 @@ RUN chmod -R +r ${NGINX_DIR}
 
 ARG COMMIT_SHA
 ENV SHA=${COMMIT_SHA}
+ENV COMMIT_SHA=${COMMIT_SHA}
 RUN echo ${SHA} > ${NGINX_DIR}/sha.txt
+
+# ARGs are reset after FROM See https://github.com/moby/moby/issues/34129
+ARG BASE_IMAGE
+ENV BASE_IMAGE=${BASE_IMAGE}
 
 COPY nginx.conf.template        /docker-entrypoint.d
 COPY ports.docker.env           /docker-entrypoint.d
