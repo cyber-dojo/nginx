@@ -45,6 +45,7 @@ kosli_report_snyk()
       --host="${hostname}" \
       --name=snyk-scan \
       --severity-threshold=medium \
+      --policy-path="$(root_dir)/.snyk" \
       --scan-results="$(root_dir)/snyk.json"
 }
 
