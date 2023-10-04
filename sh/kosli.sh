@@ -37,10 +37,14 @@ kosli_report_snyk()
 {
   local -r hostname="${1}"
 
+# We use severity-threshold=medium here because the nginx base image comtains many low-severity
+# vulnerabilities that cannot currently be fixed. This allows us to ignore them and
+# have a passing snyk scan.
   kosli report evidence artifact snyk "$(artifact_name)" \
       --artifact-type=docker \
       --host="${hostname}" \
       --name=snyk-scan \
+      --severity-threshold=medium \
       --scan-results="$(root_dir)/snyk.json"
 }
 
