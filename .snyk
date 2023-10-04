@@ -7,4 +7,9 @@ ignore:
         reason: None Given
         expires: 2023-10-28T09:47:13.646Z
         created: 2023-09-28T09:47:13.649Z
+  SNYK-DEBIAN12-GLIBC-5894114:
+    - '*':
+        reason: None Given
+        expires: 2023-11-03T14:03:41.368Z
+        created: 2023-10-04T14:03:41.379Z
 patch: {}
