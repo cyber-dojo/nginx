@@ -4,6 +4,7 @@ LABEL maintainer=jon@jaggersoft.com
 
 ARG NGINX_DIR=/usr/share/nginx/html
 
+RUN         apt-get update && apt-get -y upgrade
 RUN         rm -rf ${NGINX_DIR}
 COPY        images ${NGINX_DIR}/images
 COPY        js     ${NGINX_DIR}/js
