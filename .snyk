@@ -22,4 +22,14 @@ ignore:
         reason: Waiting for Debian upgrade
         expires: 2023-11-10T19:31:20.564Z
         created: 2023-10-11T19:31:20.581Z
+  SNYK-DEBIAN12-LIBXPM-5927179:
+    - '*':
+        reason: Waiting for Debian upgrade
+        expires: 2023-11-15T19:31:20.564Z
+        created: 2023-10-15T19:31:20.581Z
+  SNYK-DEBIAN12-LIBXPM-5927176:
+    - '*':
+        reason: Waiting for Debian upgrade
+        expires: 2023-11-15T19:31:20.564Z
+        created: 2023-10-15T19:31:20.581Z
 patch: {}
