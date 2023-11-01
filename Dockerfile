@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=nginx:1.25.2
+ARG BASE_IMAGE=nginx:1.25.3
 FROM ${BASE_IMAGE}
 LABEL maintainer=jon@jaggersoft.com
 
