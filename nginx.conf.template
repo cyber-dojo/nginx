@@ -105,7 +105,7 @@ server {
 
   location /version-reporter {
     rewrite ^/version-reporter/(.*) /$1 break;
-    proxy_pass http://$version_reporter:${CYBER_DOJO_VERSION_REPORTER_PORT};
+    proxy_pass http://$version_reporter_hostname:${CYBER_DOJO_VERSION_REPORTER_PORT};
   }
 
   location /repler {
