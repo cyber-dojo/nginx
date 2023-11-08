@@ -57,7 +57,6 @@ server {
   set $custom_start_points_hostname ${CYBER_DOJO_CUSTOM_START_POINTS_HOSTNAME};
   set $exercises_start_points_hostname ${CYBER_DOJO_EXERCISES_START_POINTS_HOSTNAME};
   set $languages_start_points_hostname ${CYBER_DOJO_LANGUAGES_START_POINTS_HOSTNAME};
-  set $shas_hostname ${CYBER_DOJO_SHAS_HOSTNAME};
   set $version_reporter_hostname ${CYBER_DOJO_VERSION_REPORTER_HOSTNAME};
   set $runner_hostname ${CYBER_DOJO_RUNNER_HOSTNAME};
   set $repler_hostname ${CYBER_DOJO_REPLER_HOSTNAME};
@@ -96,11 +95,6 @@ server {
   location /languages-start-points/ {
     rewrite ^/languages-start-points/(.*) /$1 break;
     proxy_pass http://$languages_start_points_hostname:${CYBER_DOJO_LANGUAGES_START_POINTS_PORT};
-  }
-
-  location /shas {
-    rewrite ^/shas/(.*) /$1 break;
-    proxy_pass http://$shas_hostname:${CYBER_DOJO_SHAS_PORT};
   }
 
   location /version-reporter {
