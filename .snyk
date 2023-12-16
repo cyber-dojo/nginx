@@ -5,26 +5,51 @@ ignore:
   SNYK-DEBIAN12-TIFF-5862859:
     - '*':
         reason: Waiting for Debian upgrade
-        expires: 2023-12-10T19:30:13.235Z
+        expires: 2024-01-10T19:30:13.235Z
         created: 2023-10-11T19:30:13.242Z
   SNYK-DEBIAN12-TIFF-5862863:
     - '*':
         reason: Waiting for Debian upgrade
-        expires: 2023-12-10T19:30:34.260Z
+        expires: 2024-01-10T19:30:34.260Z
         created: 2023-10-11T19:30:34.270Z
   SNYK-DEBIAN12-TIFF-5934984:
     - '*':
         reason: Waiting for Debian upgrade
-        expires: 2023-12-10T19:30:47.863Z
+        expires: 2024-01-10T19:30:47.863Z
         created: 2023-10-11T19:30:47.874Z
   SNYK-DEBIAN12-NGHTTP2-5953379:
     - '*':
         reason: Waiting for Debian upgrade
-        expires: 2023-12-10T19:31:20.564Z
+        expires: 2024-01-10T19:31:20.564Z
         created: 2023-10-11T19:31:20.581Z
   SNYK-DEBIAN12-ZLIB-6008963:
     - '*':
         reason: Waiting for Debian upgrade
-        expires: 2023-12-21T19:31:20.564Z
+        expires: 2024-01-21T19:31:20.564Z
         created: 2023-10-21T19:31:20.581Z
+  SNYK-DEBIAN12-LIBDE265-3361563:
+    - '*':
+        reason: Waiting for Debian upgrade
+        expires: 2024-01-21T19:31:20.564Z
+        created: 2023-12-15T19:31:20.581Z
+  SNYK-DEBIAN12-LIBDE265-6070694:
+    - '*':
+        reason: Waiting for Debian upgrade
+        expires: 2024-01-21T19:31:20.564Z
+        created: 2023-12-15T19:31:20.581Z
+  SNYK-DEBIAN12-LIBDE265-6105348:
+    - '*':
+        reason: Waiting for Debian upgrade
+        expires: 2024-01-21T19:31:20.564Z
+        created: 2023-12-15T19:31:20.581Z
+  SNYK-DEBIAN12-LIBDE265-6105349:
+    - '*':
+        reason: Waiting for Debian upgrade
+        expires: 2024-01-21T19:31:20.564Z
+        created: 2023-12-15T19:31:20.581Z
+  SNYK-DEBIAN12-LIBDE265-6105361:
+    - '*':
+        reason: Waiting for Debian upgrade
+        expires: 2024-01-21T19:31:20.564Z
+        created: 2023-12-15T19:31:20.581Z
 patch: {}
