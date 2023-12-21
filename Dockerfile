@@ -1,10 +1,13 @@
-ARG BASE_IMAGE=nginx:1.25.3
+ARG BASE_IMAGE=nginx:stable-alpine3.17
 FROM ${BASE_IMAGE}
 LABEL maintainer=jon@jaggersoft.com
 
 ARG NGINX_DIR=/usr/share/nginx/html
 
-RUN         apt-get update && apt-get -y upgrade
+RUN apk add bash
+RUN apk add libcurl=8.5.0-r0        # https://security.snyk.io/vuln/SNYK-ALPINE318-CURL-6104720
+RUN apk upgrade
+
 RUN         rm -rf ${NGINX_DIR}
 COPY        images ${NGINX_DIR}/images
 COPY        js     ${NGINX_DIR}/js
