@@ -101,11 +101,6 @@ server {
     proxy_pass http://$repler_hostname:${CYBER_DOJO_REPLER_PORT};
   }
 
-  location /runner/sha {
-    rewrite ^/runner/sha /sha break;
-    proxy_pass http://$runner_hostname:${CYBER_DOJO_RUNNER_PORT};
-  }
-
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # For everything else try a static file, otherwise try web.
 
