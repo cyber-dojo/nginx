@@ -15,7 +15,6 @@ RUN chmod -R +r ${NGINX_DIR}
 
 ARG COMMIT_SHA
 ENV SHA=${COMMIT_SHA}
-ENV COMMIT_SHA=${COMMIT_SHA}
 RUN echo ${SHA} > ${NGINX_DIR}/sha.txt
 
 # ARGs are reset after FROM See https://github.com/moby/moby/issues/34129
