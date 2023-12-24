@@ -7,3 +7,4 @@
 !ports.docker.env
 !ports.k8s.env
 !ports.ecs.env
+!bootstrap.sh
