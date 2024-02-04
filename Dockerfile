@@ -6,7 +6,7 @@ ARG NGINX_DIR=/usr/share/nginx/html
 
 RUN apk add tini
 RUN apk add bash
-RUN apk add libcurl=8.5.0-r0        # https://security.snyk.io/vuln/SNYK-ALPINE318-CURL-6104720
+
 RUN apk upgrade
 
 RUN      rm -rf ${NGINX_DIR}
