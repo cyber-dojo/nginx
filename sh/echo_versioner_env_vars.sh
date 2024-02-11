@@ -10,7 +10,7 @@ echo_versioner_env_vars()
 # - - - - - - - - - - - - - - - - - - - - - - - -
 git_commit_sha()
 {
-  echo "$(cd "$(root_dir)" && git rev-parse HEAD)"
+  echo "$(cd "$(repo_root)" && git rev-parse HEAD)"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
