@@ -100,6 +100,7 @@ on_ci()
 # - - - - - - - - - - - - - - - - - - - - - - - -
 export $(echo_versioner_env_vars)
 
+set -x
 remove_old_image_layers
 on_ci_kosli_begin_trail
 build_tagged_image
