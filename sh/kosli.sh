@@ -53,7 +53,7 @@ kosli_attest_snyk()
     --artifact-type=docker \
     --host="${hostname}" \
     --api-token="${api_token}" \
-    --attachments="$(repo_root)/.snyk" \
+    --attachments="$(repo_root)/snyk.policy" \
     --name=nginx.snyk-scan \
     --scan-results="$(repo_root)/snyk.json"
 }
@@ -95,7 +95,7 @@ on_ci_kosli_attest_snyk_scan_evidence()
     set +e
     snyk container test "$(artifact_name)" \
       --file="$(repo_root)/Dockerfile" \
-      --policy-path="$(repo_root)/.snyk" \
+      --policy-path="$(repo_root)/snyk.policy" \
       --sarif \
       --sarif-file-output=snyk.json \
       --severity-threshold=medium
