@@ -95,8 +95,9 @@ on_ci_kosli_attest_snyk_scan_evidence()
     set +e
     snyk container test "$(artifact_name)" \
       --file="$(repo_root)/Dockerfile" \
-      --json-file-output="$(repo_root)/snyk.json" \
       --policy-path="$(repo_root)/.snyk" \
+      --sarif \
+      --sarif-file-output=snyk.json \
       --severity-threshold=medium
     set -e
 
