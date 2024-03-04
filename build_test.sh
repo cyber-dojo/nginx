@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 set -Eeu
 
-export ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly SH_DIR="${ROOT_DIR}/sh"
+repo_root() { git rev-parse --show-toplevel; }
+readonly SH_DIR="$(repo_root)/sh"
 source "${SH_DIR}/echo_versioner_env_vars.sh"
-source "${SH_DIR}/kosli.sh"
 export $(echo_versioner_env_vars)
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
@@ -39,7 +38,7 @@ build_tagged_image()
     --no-cache \
     --build-arg COMMIT_SHA=${CYBER_DOJO_NGINX_SHA} \
     --tag ${CYBER_DOJO_NGINX_IMAGE}:${CYBER_DOJO_NGINX_TAG} \
-    "${ROOT_DIR}"
+    "$(repo_root)"
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
@@ -77,37 +76,11 @@ sha_inside_image()
   docker run --rm "${CYBER_DOJO_NGINX_IMAGE}:${CYBER_DOJO_NGINX_TAG}" sh -c 'echo ${SHA}'
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - -
-on_ci_publish_tagged_images()
-{
-  echo
-  if ! on_ci; then
-    echo 'Not on CI so not publishing tagged images'
-    return
-  fi
-  echo 'On CI so publishing tagged images'
-  docker push "${CYBER_DOJO_NGINX_IMAGE}:${CYBER_DOJO_NGINX_TAG}"
-  docker tag  "${CYBER_DOJO_NGINX_IMAGE}:${CYBER_DOJO_NGINX_TAG}" "${CYBER_DOJO_NGINX_IMAGE}:latest"
-  docker push "${CYBER_DOJO_NGINX_IMAGE}:latest"
-}
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
-on_ci()
-{
-  [ -n "${CI:-}" ]
-}
-
-# - - - - - - - - - - - - - - - - - - - - - - - -
-export $(echo_versioner_env_vars)
-
 remove_old_image_layers
-on_ci_kosli_begin_trail
 build_tagged_image
 tag_image_to_latest
 check_embedded_SHA_env_var
 show_SHA_env_var
-on_ci_publish_tagged_images
-on_ci_kosli_attest_artifact
-on_ci_kosli_attest_snyk_scan_evidence
-on_ci_kosli_assert_artifact
 
