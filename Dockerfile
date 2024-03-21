@@ -8,7 +8,7 @@ RUN apk add tini
 RUN apk add bash
 
 RUN apk upgrade
-RUN apk add libexpat=2.6.0-r0  # https://security.snyk.io/vuln/SNYK-ALPINE319-EXPAT-6241038
+RUN apk add libexpat=2.6.2-r0  # https://security.snyk.io/vuln/SNYK-ALPINE319-EXPAT-6241038
 
 RUN      rm -rf ${NGINX_DIR}
 COPY     images ${NGINX_DIR}/images
