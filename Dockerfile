@@ -9,7 +9,6 @@ RUN apk add bash
 
 RUN apk upgrade
 RUN apk add libexpat=2.6.2-r0  # https://security.snyk.io/vuln/SNYK-ALPINE319-EXPAT-6241038
-RUN apk add busybox=1.36.1-r16 # https://security.snyk.io/vuln/SNYK-ALPINE319-BUSYBOX-6913413
 
 RUN      rm -rf ${NGINX_DIR}
 COPY     images ${NGINX_DIR}/images
