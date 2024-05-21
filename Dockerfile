@@ -1,4 +1,4 @@
-ARG BASE_IMAGE=nginx:stable-alpine3.17
+ARG BASE_IMAGE=nginx:stable-alpine3.19
 FROM ${BASE_IMAGE}
 LABEL maintainer=jon@jaggersoft.com
 
@@ -8,7 +8,6 @@ RUN apk add tini
 RUN apk add bash
 
 RUN apk upgrade
-RUN apk add libexpat=2.6.2-r0  # https://security.snyk.io/vuln/SNYK-ALPINE319-EXPAT-6241038
 
 RUN      rm -rf ${NGINX_DIR}
 COPY     images ${NGINX_DIR}/images
