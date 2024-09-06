@@ -6,6 +6,7 @@ ARG NGINX_DIR=/usr/share/nginx/html
 
 RUN apk add tini
 RUN apk add bash
+RUN apk add libexpat=2.6.3-r0  # https://security.snyk.io/vuln/SNYK-ALPINE319-EXPAT-7908399
 
 RUN apk upgrade
 
