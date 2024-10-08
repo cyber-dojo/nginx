@@ -1,5 +1,9 @@
 ARG BASE_IMAGE=nginx:stable-alpine3.19
 FROM ${BASE_IMAGE}
+# ARGs are reset after FROM See https://github.com/moby/moby/issues/34129
+ARG BASE_IMAGE
+ENV BASE_IMAGE=${BASE_IMAGE}
+
 LABEL maintainer=jon@jaggersoft.com
 
 ARG NGINX_DIR=/usr/share/nginx/html
@@ -18,10 +22,6 @@ COPY bootstrap.sh /
 
 ARG COMMIT_SHA
 ENV SHA=${COMMIT_SHA}
-
-# ARGs are reset after FROM See https://github.com/moby/moby/issues/34129
-ARG BASE_IMAGE
-ENV BASE_IMAGE=${BASE_IMAGE}
 
 COPY nginx.conf.template        /docker-entrypoint.d
 COPY ports.docker.env           /docker-entrypoint.d
