@@ -112,6 +112,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASS }}
 
       - name: Build and push image to Dockerhub Registry
+        id: docker_build
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -119,6 +120,12 @@ jobs:
           tags: ${{ needs.setup.outputs.image_name }}
           build-args:
             COMMIT_SHA=${{ github.sha }}
+
+      - name: Make artifact fingerprint available to following jobs
+        id: variables
+        run: |
+          FINGERPRINT=$(echo ${{ steps.docker_build.outputs.digest }} | sed 's/.*://')                              
+          echo "kosli_fingerprint=${FINGERPRINT}" >> ${GITHUB_OUTPUT}
 
       - name: Setup Kosli CLI
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -133,12 +140,6 @@ jobs:
             --artifact-type=docker
             --name=nginx
             --trail="${GITHUB_SHA}"
-
-      - name: Make artifact fingerprint available to following jobs
-        id: variables
-        run: |
-          FINGERPRINT=$(kosli fingerprint "${IMAGE_NAME}" --artifact-type=docker)
-          echo "kosli_fingerprint=${FINGERPRINT}" >> ${GITHUB_OUTPUT}
 
 
   snyk-container-scan:
