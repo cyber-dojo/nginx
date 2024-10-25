@@ -11,6 +11,7 @@ env:
   KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
   KOSLI_TRAIL: ${{ github.sha }}
   SERVICE_NAME: ${{ github.event.repository.name }}  # nginx
+  IMAGE_TAR_FILENAME: /tmp/${{ github.event.repository.name }}:${{ github.sha }}.tar
 
 jobs:
 
@@ -120,6 +121,17 @@ jobs:
           tags: ${{ needs.setup.outputs.image_name }}
           build-args:
             COMMIT_SHA=${{ github.sha }}
+
+      - name: Tar Docker image
+        run: |
+          docker pull ${{ env.IMAGE_NAME }}          
+          docker image save ${{ env.IMAGE_NAME }} --output ${{ env.IMAGE_TAR_FILENAME }}
+
+      - name: Cache Docker image
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.IMAGE_TAR_FILENAME }}
+          key: ${{ env.IMAGE_NAME }}
 
       - name: Make artifact fingerprint available to following jobs
         id: variables

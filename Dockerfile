@@ -1,16 +1,9 @@
-ARG BASE_IMAGE=nginx:stable-alpine3.19
-FROM ${BASE_IMAGE}
-# ARGs are reset after FROM See https://github.com/moby/moby/issues/34129
-ARG BASE_IMAGE
-ENV BASE_IMAGE=${BASE_IMAGE}
-
+FROM nginx:stable-alpine3.20
 LABEL maintainer=jon@jaggersoft.com
 
 ARG NGINX_DIR=/usr/share/nginx/html
 
-RUN apk add tini
-RUN apk add bash
-RUN apk add libexpat=2.6.3-r0  # https://security.snyk.io/vuln/SNYK-ALPINE319-EXPAT-7908399
+RUN apk add bash tini
 
 RUN apk upgrade
 
