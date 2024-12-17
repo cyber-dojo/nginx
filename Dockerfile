@@ -5,7 +5,7 @@ ARG NGINX_DIR=/usr/share/nginx/html
 
 RUN apk add bash tini
 
-RUN apk add libcurl=8.11.0-r2     # https://security.snyk.io/vuln/SNYK-ALPINE320-CURL-8348469
+RUN apk add libcurl=8.11.1-r0     # https://security.snyk.io/vuln/SNYK-ALPINE320-CURL-8499545
 
 RUN apk upgrade
 
