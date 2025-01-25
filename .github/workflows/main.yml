@@ -1,4 +1,4 @@
-name: Main - Attests to https://app.kosli.com
+name: Main
 
 on:
   push:
@@ -126,8 +126,8 @@ jobs:
 
       - name: Tar Docker image
         run: |
-          docker pull ${{ env.IMAGE_NAME }}          
-          docker image save ${{ env.IMAGE_NAME }} --output ${{ env.IMAGE_TAR_FILENAME }}
+          docker pull ${IMAGE_NAME}          
+          docker image save ${IMAGE_NAME} --output ${IMAGE_TAR_FILENAME}
 
       - name: Cache Docker image
         uses: actions/cache@v4
@@ -160,6 +160,8 @@ jobs:
     needs: [setup, build-image]
     runs-on: ubuntu-latest
     env:
+      IMAGE_NAME: ${{ needs.setup.outputs.image_name }}
+      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.kosli_fingerprint }}
       SARIF_FILENAME: snyk.container.scan.json
     steps:
       - uses: actions/checkout@v4
@@ -171,7 +173,6 @@ jobs:
 
       - name: Run Snyk container scan
         env:
-          IMAGE_NAME: ${{ needs.setup.outputs.image_name }}
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run:
           snyk container test ${IMAGE_NAME} 
@@ -188,8 +189,6 @@ jobs:
 
       - name: Attest evidence to Kosli
         if: ${{ github.ref == 'refs/heads/main' && (success() || failure()) }}
-        env:
-          KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.kosli_fingerprint }}
         run:
           kosli attest snyk 
             --attachments=.snyk          
@@ -201,6 +200,9 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     needs: [setup, build-image, pull-request, snyk-container-scan, snyk-code-scan]
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
+      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.kosli_fingerprint }}
     steps:
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -208,9 +210,6 @@ jobs:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
       - name: Kosli SDLC gate to short-circuit the workflow
-        env:
-          IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
-          KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.kosli_fingerprint }}
         run:
           kosli assert artifact ${IMAGE_NAME}
 
@@ -218,6 +217,9 @@ jobs:
   approve-deployment-to-beta:
     needs: [setup, build-image, sdlc-control-gate]
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
+      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.kosli_fingerprint }}
     environment:
       name: staging
       url: https://beta.cyber-dojo.org
@@ -233,8 +235,6 @@ jobs:
 
       - name: Attest approval of deployment to Kosli
         env:
-          IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
-          KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.kosli_fingerprint }}
           KOSLI_ENVIRONMENT: aws-beta
         run:
           kosli report approval ${IMAGE_NAME}
@@ -253,6 +253,9 @@ jobs:
   approve-deployment-to-prod:
     needs: [setup, build-image, deploy-to-beta]
     runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
+      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.kosli_fingerprint }}
     environment:
       name: production
       url: https://cyber-dojo.org
@@ -268,8 +271,6 @@ jobs:
 
       - name: Attest approval of deployment to Kosli
         env:
-          IMAGE_NAME:        ${{ needs.setup.outputs.image_name }}
-          KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.kosli_fingerprint }}
           KOSLI_ENVIRONMENT: aws-prod
         run:
           kosli report approval ${IMAGE_NAME}
