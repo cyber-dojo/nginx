@@ -66,6 +66,12 @@ server {
     proxy_pass http://$creator_hostname:${CYBER_DOJO_CREATOR_PORT};
   }
 
+  location /runner/ {
+    rewrite ^/runner/sha /sha break;
+    rewrite ^/runner/base_image /base_image break;
+    proxy_pass http://$runner_hostname:${CYBER_DOJO_RUNNER_PORT};
+  }
+
   location /saver/ {
     rewrite ^/saver/(.*) /$1 break;
     proxy_pass http://$saver_hostname:${CYBER_DOJO_SAVER_PORT};
