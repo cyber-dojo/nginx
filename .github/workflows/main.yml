@@ -35,7 +35,7 @@ jobs:
           fetch-depth: 1
 
       - name: Set outputs
-        id: variables
+        id: vars
         run: |
           IMAGE_TAG=${GITHUB_SHA:0:7}
           ECR_REGISTRY="${AWS_ECR_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"          
@@ -347,4 +347,3 @@ jobs:
           LATEST="cyberdojo/${SERVICE_NAME}:latest"
           docker tag "${IMAGE_NAME}" "${LATEST}"
           docker push "${LATEST}"
-        
