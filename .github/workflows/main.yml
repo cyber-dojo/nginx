@@ -118,6 +118,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: ${{ needs.setup.outputs.image_name }}
+    permissions:
+      id-token: write
+      contents: write
     outputs:
       digest: ${{ steps.variables.outputs.digest }}
     steps:
