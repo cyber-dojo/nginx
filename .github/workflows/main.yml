@@ -10,6 +10,9 @@ env:
   KOSLI_FLOW: ${{ vars.KOSLI_FLOW  }}                # nginx-ci
   KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
   KOSLI_TRAIL: ${{ github.sha }}
+  AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+  AWS_ECR_ID: ${{ vars.AWS_ECR_ID }}
+  AWS_REGION: ${{ vars.AWS_REGION }}
   SERVICE_NAME: ${{ github.event.repository.name }}  # nginx
   IMAGE_TAR_FILENAME: /tmp/${{ github.event.repository.name }}:${{ github.sha }}.tar
   DOCKER_API_VERSION: ${{ vars.DOCKER_API_VERSION }}
@@ -19,8 +22,13 @@ jobs:
   setup:
     runs-on: ubuntu-latest
     outputs:
-      image_tag:  ${{ steps.variables.outputs.image_tag }}
-      image_name: ${{ steps.variables.outputs.image_name }}
+      aws_account_id: ${{ steps.vars.outputs.aws_account_id }}
+      ecr_registry: ${{ steps.vars.outputs.ecr_registry }}
+      aws_region: ${{ steps.vars.outputs.aws_region }}
+      gh_actions_iam_role_name: ${{ steps.vars.outputs.gh_actions_iam_role_name }}
+      service_name: ${{ steps.vars.outputs.service_name }}
+      image_tag: ${{ steps.vars.outputs.image_tag }}
+      image_name: ${{ steps.vars.outputs.image_name }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,9 +38,17 @@ jobs:
         id: variables
         run: |
           IMAGE_TAG=${GITHUB_SHA:0:7}
-          echo "image_tag=${IMAGE_TAG}" >> ${GITHUB_OUTPUT}       
-          echo "image_name=cyberdojo/${{ env.SERVICE_NAME }}:${IMAGE_TAG}" >> ${GITHUB_OUTPUT}          
+          ECR_REGISTRY="${AWS_ECR_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"          
+          IMAGE_NAME="${ECR_REGISTRY}/${{ env.SERVICE_NAME }}:${IMAGE_TAG}"
 
+          echo "aws_account_id=${AWS_ACCOUNT_ID}"             >> ${GITHUB_OUTPUT}          
+          echo "ecr_registry=${ECR_REGISTRY}"                 >> ${GITHUB_OUTPUT}
+          echo "aws_region=${AWS_REGION}"                     >> ${GITHUB_OUTPUT}
+          echo "gh_actions_iam_role_name=gh_actions_services" >> ${GITHUB_OUTPUT}
+          echo "service_name=${{ env.SERVICE_NAME }}"         >> ${GITHUB_OUTPUT}
+          echo "image_tag=${IMAGE_TAG}"                       >> ${GITHUB_OUTPUT}
+          echo "image_name=${IMAGE_NAME}"                     >> ${GITHUB_OUTPUT}          
+          
 
   pull-request:
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -109,25 +125,38 @@ jobs:
         with:
           fetch-depth: 1
 
-      - uses: docker/login-action@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          username: ${{ secrets.DOCKER_USER }}
-          password: ${{ secrets.DOCKER_PASS }}
+          aws-region: ${{ needs.setup.outputs.aws_region }}
+          role-duration-seconds: 900
+          role-session-name: ${{ github.event.repository.name }}
+          role-to-assume: arn:aws:iam::${{ needs.setup.outputs.aws_account_id }}:role/${{ needs.setup.outputs.gh_actions_iam_role_name }}
+          mask-aws-account-id: no
 
-      - name: Build and push image to Dockerhub Registry
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image to Amazon ECR
         id: docker_build
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           no-cache: true
           push: true
-          tags: ${{ needs.setup.outputs.image_name }}
+          tags: ${{ env.IMAGE_NAME }}
           build-args:
             COMMIT_SHA=${{ github.sha }}
 
-      - name: Tar Docker image
+      - name: Make artifact digest available to following jobs
+        id: variables
         run: |
-          docker pull ${IMAGE_NAME}          
+          DIGEST=$(echo ${{ steps.docker_build.outputs.digest }} | sed 's/.*://')                              
+          echo "digest=${DIGEST}" >> ${GITHUB_OUTPUT}
+
+      - name: Save Docker image
+        run:
           docker image save ${IMAGE_NAME} --output ${IMAGE_TAR_FILENAME}
 
       - name: Cache Docker image
@@ -135,12 +164,6 @@ jobs:
         with:
           path: ${{ env.IMAGE_TAR_FILENAME }}
           key: ${{ env.IMAGE_NAME }}
-
-      - name: Make artifact digest available to following jobs
-        id: variables
-        run: |
-          DIGEST=$(echo ${{ steps.docker_build.outputs.digest }} | sed 's/.*://')                              
-          echo "digest=${DIGEST}" >> ${GITHUB_OUTPUT}
 
       - name: Setup Kosli CLI
         if: ${{ github.ref == 'refs/heads/main' }}
@@ -154,7 +177,6 @@ jobs:
           kosli attest artifact "${IMAGE_NAME}"
             --artifact-type=docker
             --name=nginx
-            --trail="${GITHUB_SHA}"
 
 
   snyk-container-scan:
@@ -299,16 +321,30 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: ${{ needs.setup.outputs.image_name }}
+      IMAGE_TAG: ${{ needs.setup.outputs.image_tag }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Retrieve Docker image from cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.IMAGE_TAR_FILENAME }}
+          key: ${{ env.IMAGE_NAME }}
+
+      - name: Load Docker image
+        run:
+          docker image load --input "${IMAGE_TAR_FILENAME}"
 
       - uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
 
-      - name: Tag image to :latest and push to Dockerhub Registry
+      - name: Tag images and push to Dockerhub
         run: |
-          docker pull "${IMAGE_NAME}"
-          docker tag "${IMAGE_NAME}" cyberdojo/${{ env.SERVICE_NAME }}:latest
-          docker push cyberdojo/${{ env.SERVICE_NAME }}:latest
+          TAGGED="cyberdojo/${SERVICE_NAME}:${IMAGE_TAG}"
+          docker tag "${IMAGE_NAME}" "${TAGGED}"
+          docker push "${TAGGED}"
+          
+          LATEST="cyberdojo/${SERVICE_NAME}:latest"
+          docker tag "${IMAGE_NAME}" "${LATEST}"
+          docker push "${LATEST}"
+        
