@@ -3,8 +3,8 @@ set -Eeu
 
 repo_root() { git rev-parse --show-toplevel; }
 readonly SH_DIR="$(repo_root)/sh"
-source "${SH_DIR}/echo_versioner_env_vars.sh"
-export $(echo_versioner_env_vars)
+source "${SH_DIR}/echo_env_vars.sh"
+export $(echo_env_vars)
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
 remove_old_image_layers()
