@@ -61,6 +61,10 @@ server {
   set $repler_hostname ${CYBER_DOJO_REPLER_HOSTNAME};
   set $web_hostname ${CYBER_DOJO_WEB_HOSTNAME};
 
+  location /nginx/sha {
+    return 200 "{\"sha\": \"${SHA}\"}";
+  }
+
   location /creator/ {
     rewrite ^/creator/(.*) /$1 break;
     proxy_pass http://$creator_hostname:${CYBER_DOJO_CREATOR_PORT};

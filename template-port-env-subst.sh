@@ -21,6 +21,7 @@ ports_filename()
 }
 
 readonly template_path="${nginx_docker_dir}/nginx.conf.template"
-readonly defined_envs="$(printf '${%s}' $(cat "$(ports_filename)" | cut -d= -f1))"
+readonly defined_envs="$(printf '${SHA}'; printf '${%s}' $(cat "$(ports_filename)" | cut -d= -f1))"
 export $(cat "$(ports_filename)")
+export SHA="${SHA}"
 envsubst "${defined_envs}" < "${template_path}" > "/etc/nginx/conf.d/default.conf"
