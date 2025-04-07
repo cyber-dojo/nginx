@@ -3,6 +3,8 @@ LABEL maintainer=jon@jaggersoft.com
 
 ARG NGINX_DIR=/usr/share/nginx/html
 
+RUN apk add --upgrade xz=5.6.2-r1
+
 RUN apk add bash tini
 RUN apk upgrade
 
