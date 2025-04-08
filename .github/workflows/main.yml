@@ -143,8 +143,6 @@ jobs:
       KOSLI_FLOW: ${{ vars.KOSLI_FLOW }}
       KOSLI_TRAIL: ${{ inputs.KOSLI_TRAIL }}
       KOSLI_REFERENCE_NAME: ${{ needs.setup.outputs.service_name }}
-#    secrets:
-#      KOSLI_API_TOKEN: not-used
 
 
   snyk-container-scan:
