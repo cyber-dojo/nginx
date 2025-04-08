@@ -142,7 +142,7 @@ jobs:
         BASE_IMAGE=${{ inputs.BASE_IMAGE }}
       ATTEST_TO_KOSLI: ${{ github.ref == 'refs/heads/main' }}
       KOSLI_FLOW: ${{ vars.KOSLI_FLOW }}
-      KOSLI_TRAIL: ${{ inputs.KOSLI_TRAIL }}
+      KOSLI_TRAIL: ${{ github.sha }}
       KOSLI_REFERENCE_NAME: ${{ needs.setup.outputs.service_name }}
 
 
