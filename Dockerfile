@@ -1,13 +1,10 @@
-FROM nginx:stable-alpine3.20
+FROM nginx:stable-alpine3.20@sha256:1eadbb07820339e8bbfed18c771691970baee292ec4ab2558f1453d26153e22d
 LABEL maintainer=jon@jaggersoft.com
-
-ARG NGINX_DIR=/usr/share/nginx/html
-
-RUN apk add --upgrade xz=5.6.2-r1
 
 RUN apk add bash tini
 RUN apk upgrade
 
+ARG NGINX_DIR=/usr/share/nginx/html
 RUN      rm -rf ${NGINX_DIR}
 COPY     images ${NGINX_DIR}/images
 COPY     js     ${NGINX_DIR}/js
