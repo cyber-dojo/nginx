@@ -4,6 +4,8 @@ LABEL maintainer=jon@jaggersoft.com
 RUN apk add bash tini
 RUN apk upgrade
 
+RUN apk add --upgrade libxml2=2.12.10-r0      # https://security.snyk.io/vuln/SNYK-ALPINE320-LIBXML2-10165474
+
 ARG NGINX_DIR=/usr/share/nginx/html
 RUN      rm -rf ${NGINX_DIR}
 COPY     images ${NGINX_DIR}/images
