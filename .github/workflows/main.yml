@@ -137,7 +137,6 @@ jobs:
       image_tag: ${{ needs.setup.outputs.image_tag }}
       image_build_args: |
         COMMIT_SHA=${{ github.sha }}
-        BASE_IMAGE=${{ inputs.BASE_IMAGE }}
       kosli_flow: ${{ vars.KOSLI_FLOW }}
       kosli_trail: ${{ github.sha }}
       kosli_reference_name: ${{ needs.setup.outputs.service_name }}
