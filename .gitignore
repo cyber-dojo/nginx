@@ -1,2 +1,4 @@
 snyk.container.scan.json
 snyk.code.scan.json
+.DS_Store
+**/.DS_Store
