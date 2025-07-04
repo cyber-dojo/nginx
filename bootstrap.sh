@@ -3,8 +3,7 @@ set -Eeu
 
 # Dockerfile has this
 
-# ARG BASE_IMAGE=nginx:stable-alpine3.17
-# FROM ${BASE_IMAGE}
+# FROM nginx:stable-alpine3.20@sha256:1eadbb07820339e8bbfed18c771691970baee292ec4ab2558f1453d26153e22d
 # RUN apk add tini
 # ...
 # ENTRYPOINT ["/sbin/tini", "-g", "--"]
@@ -14,7 +13,7 @@ set -Eeu
 # base image. So we need /bootstrap.sh to repeat the
 # base image's ENTRYPOINT and CMD, which we can find using:
 #
-# $ docker inspect nginx:stable-alpine3.17
+# $ docker inspect nginx:stable-alpine3.20@sha256:1eadbb07820339e8bbfed18c771691970baee292ec4ab2558f1453d26153e22d
 #
 # Which gives this output...
 #

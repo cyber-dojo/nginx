@@ -19,7 +19,7 @@ remove_all_but_latest()
 {
   local -r docker_image_ls="${1}"
   local -r name="${2}"
-  for image in `echo "${docker_image_ls}" | grep "${name}:"`
+  for image in $(echo "${docker_image_ls}" | grep "${name}:")
   do
     if [ "${image}" != "${name}:latest" ]; then
       if [ "${image}" != "${name}:<none>" ]; then
@@ -36,8 +36,8 @@ build_tagged_image()
   echo; echo Building tagged image
   docker build \
     --no-cache \
-    --build-arg COMMIT_SHA=${CYBER_DOJO_NGINX_SHA} \
-    --tag ${CYBER_DOJO_NGINX_IMAGE}:${CYBER_DOJO_NGINX_TAG} \
+    --build-arg COMMIT_SHA="${CYBER_DOJO_NGINX_SHA}" \
+    --tag "${CYBER_DOJO_NGINX_IMAGE}:${CYBER_DOJO_NGINX_TAG}" \
     "$(repo_root)"
 }
 
@@ -68,6 +68,7 @@ show_SHA_env_var()
   echo
   echo "CYBER_DOJO_NGINX_SHA=${CYBER_DOJO_NGINX_SHA}"
   echo "CYBER_DOJO_NGINX_TAG=${CYBER_DOJO_NGINX_TAG}"
+  echo
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - -
