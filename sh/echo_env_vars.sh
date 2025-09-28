@@ -8,7 +8,7 @@ echo_env_vars()
 
 git_commit_sha()
 {
-  echo "$(cd "$(repo_root)" && git rev-parse HEAD)"
+  cd "$(repo_root)" && git rev-parse HEAD
 }
 
 git_commit_tag()
