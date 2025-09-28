@@ -62,6 +62,11 @@ jobs:
         run:
           kosli create flow "${KOSLI_FLOW}"
             --description="Reverse proxy"
+
+      - name: Begin Kosli Trail
+        if: ${{ github.ref == 'refs/heads/main' }}
+        run:
+          kosli begin trail "${KOSLI_TRAIL}"
             --template-file=.kosli.yml
 
 
