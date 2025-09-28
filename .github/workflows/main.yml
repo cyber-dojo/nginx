@@ -57,10 +57,11 @@ jobs:
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
-      - name: Attest pull-request evidence to Kosli
+      - name: Create Kosli Flow
         if: ${{ github.ref == 'refs/heads/main' }}
         run:
-          kosli begin trail "${KOSLI_TRAIL}"
+          kosli create flow "${KOSLI_FLOW}"
+            --description="Reverse proxy"
             --template-file=.kosli.yml
 
 
