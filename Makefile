@@ -5,7 +5,7 @@ IMAGE_NAME := cyberdojo/nginx:${SHORT_SHA}
 .PHONY: image snyk-container snyk-code
 
 image:
-	${PWD}/sh/build_test.sh
+	${PWD}/bin/build_test.sh
 
 snyk-container: image
 	snyk container test ${IMAGE_NAME} \
