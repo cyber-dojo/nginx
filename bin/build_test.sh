@@ -2,8 +2,8 @@
 set -Eeu
 
 repo_root() { git rev-parse --show-toplevel; }
-readonly SH_DIR="$(repo_root)/sh"
-source "${SH_DIR}/echo_env_vars.sh"
+readonly BIN_DIR="$(repo_root)/bin"
+source "${BIN_DIR}/echo_env_vars.sh"
 export $(echo_env_vars)
 
 remove_old_image_layers()
@@ -65,8 +65,8 @@ check_embedded_SHA_env_var()
 show_SHA_env_var()
 {
   echo
-  echo "echo CYBER_DOJO_NGINX_SHA=${CYBER_DOJO_NGINX_SHA}"
-  echo "echo CYBER_DOJO_NGINX_TAG=${CYBER_DOJO_NGINX_TAG}"
+  echo "  echo CYBER_DOJO_NGINX_SHA=${CYBER_DOJO_NGINX_SHA}"
+  echo "  echo CYBER_DOJO_NGINX_TAG=${CYBER_DOJO_NGINX_TAG}"
   echo
 }
 
