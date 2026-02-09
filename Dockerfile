@@ -4,6 +4,7 @@ LABEL maintainer=jon@jaggersoft.com
 RUN apk add bash tini
 RUN apk upgrade
 
+RUN apk add --upgrade expat=2.7.4-r0      # https://security.snyk.io/vuln/SNYK-ALPINE321-EXPAT-15199474
 RUN apk add --upgrade busybox=1.36.1-r31  # https://security.snyk.io/vuln/SNYK-ALPINE320-BUSYBOX-14102403
 RUN apk add --upgrade libxml2=2.12.10-r0  # https://security.snyk.io/vuln/SNYK-ALPINE320-LIBXML2-10165474
 RUN apk upgrade musl                      # https://security.snyk.io/vuln/SNYK-ALPINE320-MUSL-8720638
