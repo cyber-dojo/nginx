@@ -52,7 +52,6 @@ jobs:
             echo "image_name=${IMAGE_NAME}"
           } >> ${GITHUB_OUTPUT}          
           
-      # https://github.com/cyber-dojo/kosli-begin-trail
       - name: Begin Kosli Trail
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: cyber-dojo/kosli-begin-trail@main
@@ -86,44 +85,6 @@ jobs:
             --name=pull-request
 
 
-  snyk-code-scan:
-    needs: [setup]
-    runs-on: ubuntu-latest
-    env:
-      SARIF_FILENAME: snyk.code.scan.json
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - name: Setup Snyk
-        uses: snyk/actions/setup@master
-
-      - name: Run Snyk code scan
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run:
-          snyk code test 
-            --policy-path=.snyk 
-            --sarif 
-            --sarif-file-output="${SARIF_FILENAME}" 
-            .
-
-      - name: Setup Kosli CLI
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: kosli-dev/setup-cli-action@v2
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
-
-      - name: Attest evidence to Kosli
-        if: ${{ github.ref == 'refs/heads/main' }}
-        run:
-          kosli attest snyk 
-            --attachments=.snyk
-            --name=nginx.snyk-code-scan 
-            --scan-results="${SARIF_FILENAME}"
-
-
   build-image:
     needs: [setup]
     uses: cyber-dojo/reusable-actions-workflows/.github/workflows/secure-docker-build.yml@main
@@ -143,12 +104,29 @@ jobs:
       kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
 
 
+  # https://github.com/cyber-dojo/snyk-container-test/blob/main/action.yml
+  snyk-container-scan:
+    needs: [build-image]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - name: Run snyk-container-test and attest results to Kosli
+        uses: cyber-dojo/snyk-container-test@main
+        with:
+          snyk_token:        ${{ secrets.SNYK_TOKEN }}
+          image_name:        ${{ needs.build-image.outputs.tagged_image_name }}
+          kosli_cli_version: ${{ vars.KOSLI_CLI_VERSION }}
+          attestation_name:  nginx.snyk-container-scan
+
+
   sdlc-control-gate:
     if: ${{ github.ref == 'refs/heads/main' }}
     needs:
       - build-image
       - pull-request
-      - snyk-code-scan
+      - snyk-container-scan
     runs-on: ubuntu-latest
     env:
       KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}

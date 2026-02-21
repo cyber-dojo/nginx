@@ -7,5 +7,5 @@ trail:
   artifacts:
     - name: nginx
       attestations:
-        - name: snyk-code-scan
+        - name: snyk-container-scan
           type: snyk
