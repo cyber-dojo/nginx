@@ -3,6 +3,7 @@ LABEL maintainer=jon@jaggersoft.com
 
 RUN apk add bash tini
 RUN apk upgrade
+RUN apk add --upgrade zlib=1.3.2-r0
 
 ARG NGINX_DIR=/usr/share/nginx/html
 RUN      rm -rf ${NGINX_DIR}
