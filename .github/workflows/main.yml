@@ -32,7 +32,7 @@ jobs:
       image_tag:                ${{ steps.vars.outputs.image_tag }}
       image_name:               ${{ steps.vars.outputs.image_name }}
     steps:
-      - uses: cyber-dojo/pinned-checkout
+      - uses: cyber-dojo/pinned-checkout@main
 
       - name: Set outputs
         id: vars
@@ -67,7 +67,7 @@ jobs:
       contents:      read
       pull-requests: read
     steps:
-      - uses: cyber-dojo/pinned-checkout
+      - uses: cyber-dojo/pinned-checkout@main
 
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v2
@@ -151,7 +151,7 @@ jobs:
       name: staging
       url:  https://beta.cyber-dojo.org
     steps:
-      - uses: cyber-dojo/pinned-checkout
+      - uses: cyber-dojo/pinned-checkout@main
         with:
           fetch-depth: 0
 
