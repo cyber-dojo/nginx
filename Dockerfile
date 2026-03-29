@@ -1,9 +1,8 @@
-FROM nginx:stable-alpine3.23@sha256:15e96e59aa3b0aada3a121296e3bce117721f42d88f5f64217ef4b18f458c6ab
+FROM nginx:stable-alpine3.23@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236
 LABEL maintainer=jon@jaggersoft.com
 
 RUN apk add bash tini
 RUN apk upgrade
-RUN apk add --upgrade zlib=1.3.2-r0
 
 ARG NGINX_DIR=/usr/share/nginx/html
 RUN      rm -rf ${NGINX_DIR}
