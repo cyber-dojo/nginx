@@ -70,7 +70,7 @@ jobs:
       - uses: cyber-dojo/pinned-checkout@main
 
       - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
+        uses: kosli-dev/setup-cli-action@v3
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
@@ -128,7 +128,7 @@ jobs:
       KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     steps:
       - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
+        uses: kosli-dev/setup-cli-action@v3
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
@@ -156,7 +156,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v2
+        uses: kosli-dev/setup-cli-action@v3
         with:
           version: ${{ vars.KOSLI_CLI_VERSION }}
 
