@@ -14,6 +14,8 @@ COPY bootstrap.sh /
 ARG COMMIT_SHA
 ENV SHA=${COMMIT_SHA}
 
+RUN apk add --upgrade openssl=3.5.6-r0  # https://security.snyk.io/vuln/SNYK-ALPINE322-OPENSSL-15993406
+
 COPY nginx.conf.template        /docker-entrypoint.d
 COPY ports.docker.env           /docker-entrypoint.d
 COPY ports.k8s.env              /docker-entrypoint.d
