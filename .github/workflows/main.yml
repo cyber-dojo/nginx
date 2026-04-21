@@ -104,7 +104,7 @@ jobs:
     uses: cyber-dojo/snyk-scanning/.github/workflows/artifact_snyk_test.yml@main
     with:
       artifact_name: ${{ needs.build-image.outputs.tagged_image_name }}
-      kosli_flow: ${{ env.KOSLI_FLOW }}
+      kosli_flow: ${{ vars.KOSLI_FLOW }}
       kosli_trail: ${{ github.sha }}
       kosli_attestation_name: nginx.snyk-container-scan
     secrets:
