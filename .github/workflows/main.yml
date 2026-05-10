@@ -31,6 +31,11 @@ jobs:
       image_tag:                ${{ steps.vars.outputs.image_tag }}
       image_name:               ${{ steps.vars.outputs.image_name }}
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - uses: cyber-dojo/pinned-checkout@main
 
       - name: Set outputs
@@ -66,6 +71,11 @@ jobs:
       contents:      read
       pull-requests: read
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - uses: cyber-dojo/pinned-checkout@main
 
       - name: Setup Kosli CLI
@@ -99,6 +109,21 @@ jobs:
       kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
 
 
+  test:
+    needs: [setup]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
+      - uses: cyber-dojo/pinned-checkout@main
+
+      - name: Run tests
+        run: make test
+
+
   snyk-container-scan:
     needs: [build-image]
     uses: cyber-dojo/snyk-scanning/.github/workflows/artifact_snyk_test.yml@main
@@ -118,10 +143,16 @@ jobs:
       - build-image
       - pull-request
       - snyk-container-scan
+      - test
     runs-on: ubuntu-latest
     env:
       KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
       - name: Setup Kosli CLI
         uses: kosli-dev/setup-cli-action@v3
         with:

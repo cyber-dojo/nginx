@@ -19,6 +19,17 @@ distinguish AI from human callers: the rate is the problem, not the origin.
 cyber-dojo has no login or authentication, so rate limiting by IP address
 or kata ID are the only practical per-client mechanisms available.
 
+Request flow for run_tests
+
+  1. Browser POSTs to /kata/run_tests/:id
+  2. nginx -- applies limit_req here; rejects with 429 if over rate, otherwise proxies to web
+  3. web -- runs tests via runner service, collects results, calls saver.kata_ran_tests(...)
+  4. saver -- receives the POST directly from web (Docker network)
+
+  Rate limiting at step 2 protects both runner and saver indirectly: if nginx drops
+  the browser request before it reaches web, web never makes either downstream call.
+  Neither runner nor saver is directly exposed to the rate limiter.
+
 
 Decision
 --------
@@ -96,6 +107,21 @@ Routing web->saver calls through nginx
   which is fragile.
 
 
+Why runner and saver cannot be rate-limited independently for run_tests
+-----------------------------------------------------------------------
+
+Runner and saver are coupled in the same web request handler: web calls runner,
+waits for the result, then calls saver.kata_ran_tests. There is no path where
+saver receives a kata_ran_tests call without runner having already been called.
+Separating them would require decoupling the flow (e.g. an async queue or a
+separate browser-initiated save call), which is a significant architectural change.
+
+The meaningful separation is that saver has POST endpoints that do not involve
+runner at all: kata_file_edit, kata_file_create, kata_file_delete, kata_file_rename.
+Those go web -> saver with no runner in the path and could be rate-limited
+independently if needed.
+
+
 Consequences
 ------------
 
@@ -105,3 +131,6 @@ Consequences
     10 seconds against the same kata.
   - Legitimate human use is unaffected: creation and structural operations
     are rare; the TDD burst allowance covers realistic rapid submission.
+  - A sophisticated attacker spreading calls across many kata IDs would bypass
+    per-kata rate limiting. At that point the problem becomes runner resource
+    exhaustion, which is a separate concern (runner sandboxing, timeouts).
