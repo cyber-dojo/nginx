@@ -1,0 +1,107 @@
+ADR: nginx rate limiting for POST routes
+=========================================
+
+Status: Accepted
+Date: 2026-05-10
+
+Context
+-------
+
+cyber-dojo runs on a multi-service Docker architecture. nginx proxies
+browser requests to the appropriate microservice. In May 2026 we identified
+that the gateway had no rate limiting on write operations, leaving the
+system open to automated bulk creation of katas and rapid-fire test
+submission.
+
+Automated clients include scripts and AI agents, which can issue requests
+at rates no human would reach. The rate limiting is not intended to
+distinguish AI from human callers: the rate is the problem, not the origin.
+cyber-dojo has no login or authentication, so rate limiting by IP address
+or kata ID are the only practical per-client mechanisms available.
+
+
+Decision
+--------
+
+Add rate limiting to all browser-facing POST routes that write to saver:
+
+  Route                   Zone key             Rate     Burst
+  /creator/create.json    $binary_remote_addr  1r/m     3
+  /creator/enter.json     $binary_remote_addr  1r/m     3
+  /kata/file_create       $binary_remote_addr  1r/m     3
+  /kata/file_delete       $binary_remote_addr  1r/m     3
+  /kata/file_rename       $binary_remote_addr  1r/m     3
+  /kata/file_edit         $binary_remote_addr  1r/10s   3
+  /kata/option_set        $binary_remote_addr  1r/m     3
+  /kata/fork              $binary_remote_addr  1r/m     3
+  /group/fork             $binary_remote_addr  1r/m     3
+  /kata/run_tests/:id     $uri                 1r/10s   2
+
+All rate-limited routes use nodelay: requests over the burst are rejected
+immediately with 429 rather than queued.
+
+Zone key rationale
+
+  Creation and write routes use $binary_remote_addr (per client IP). An
+  instructor creating group katas and 64 students each joining from their
+  own laptops are 65 independent clients and do not share quota.
+
+  run_tests uses $uri (the full /kata/run_tests/<id> path, which includes
+  the kata ID). Two students on different katas are unaffected by each
+  other. This protects runner and saver from rapid-fire submissions against
+  a single kata regardless of who is submitting.
+
+Burst rationale
+
+  burst=3 on creation routes allows an instructor to pre-create a few group
+  katas in quick succession before the sustained rate kicks in.
+
+  burst=2 on run_tests accommodates students working in small TDD steps
+  with a fast test runner who might submit twice within 10 seconds.
+
+  Separate zones per route mean one action does not consume another
+  action's burst slots.
+
+Rate limiting is applied at the nginx->upstream boundary where nginx sees
+the real browser IP. This is the correct boundary for per-client rate
+limiting.
+
+
+Alternatives considered
+-----------------------
+
+Exposing saver POST routes directly through nginx
+
+  The fork routes (/kata/fork, /group/fork) in web do little more than
+  forward to saver. We considered having the browser JS call
+  /saver/kata_fork and /saver/group_fork directly, removing the web hop.
+
+  Rejected because:
+  - The web routes are not pure pass-throughs: they extract id and index
+    from request params and wrap the saver response in a specific JSON
+    structure. Removing them would require updating client-side JS to
+    match saver's parameter and response formats directly.
+  - Saver is an internal-only service. Exposing its POST routes to browsers
+    widens the attack surface and breaks the internal/external boundary.
+
+Routing web->saver calls through nginx
+
+  To rate-limit saver calls made by web, those calls could be routed
+  web -> nginx -> saver so nginx could apply limit_req to the saver leg.
+
+  Rejected because nginx would see web's Docker IP, not the browser IP.
+  Rate limiting by $binary_remote_addr would throttle the entire web
+  service as a single client. Keying on $http_x_forwarded_for would
+  require web to propagate the browser IP on every internal saver call,
+  which is fragile.
+
+
+Consequences
+------------
+
+  - Automated clients and AI agents bulk-creating katas hit a 429 after
+    exhausting burst=3 within a minute.
+  - Automated test runners hit a 429 after 3 run_tests submissions within
+    10 seconds against the same kata.
+  - Legitimate human use is unaffected: creation and structural operations
+    are rare; the TDD burst allowance covers realistic rapid submission.

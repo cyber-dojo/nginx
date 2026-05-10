@@ -1,9 +1,0 @@
-set $saver_hostname ${CYBER_DOJO_SAVER_HOSTNAME};
-
-location /saver/ {
-  rewrite ^/saver/(.*) /$1 break;
-  limit_except GET {
-    deny all;
-  }
-  proxy_pass http://$saver_hostname:${CYBER_DOJO_SAVER_PORT};
-}
