@@ -16,7 +16,11 @@ docker build \
 
 docker compose --file "${COMPOSE_FILE}" down --remove-orphans
 
-trap "docker compose --file '${COMPOSE_FILE}' down --remove-orphans" EXIT
+dump_logs_and_down() {
+  docker compose --file "${COMPOSE_FILE}" logs --no-color
+  docker compose --file "${COMPOSE_FILE}" down --remove-orphans
+}
+trap dump_logs_and_down EXIT
 
 docker compose \
   --file "${COMPOSE_FILE}" \
@@ -26,5 +30,5 @@ docker compose \
   --wait \
   --wait-timeout 60
 
-python3 -m pip install -q -r "${TEST_DIR}/requirements.txt"
-python3 -m pytest "${TEST_DIR}/" -v "$@"
+python3 -m pip install --quiet --requirement "${TEST_DIR}/requirements.txt"
+python3 -m pytest "${TEST_DIR}/" --verbose "$@"
