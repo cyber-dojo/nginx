@@ -2,7 +2,7 @@
 SHORT_SHA := $(shell git rev-parse HEAD | head -c7)
 IMAGE_NAME := cyberdojo/nginx:${SHORT_SHA}
 
-.PHONY: image snyk-container snyk-code
+.PHONY: image snyk-container snyk-code test
 
 image:
 	${PWD}/bin/build_test.sh
@@ -19,4 +19,7 @@ snyk-code:
 		--sarif \
 		--sarif-file-output=snyk.code.scan.json \
         --policy-path=.snyk
+
+test:
+	${PWD}/bin/run_tests.sh
 

@@ -1,0 +1,124 @@
+networks:
+  cyber-dojo:
+    driver: bridge
+    name: cyber-dojo
+
+services:
+
+  nginx:
+    image: ${CYBER_DOJO_NGINX_IMAGE}:${CYBER_DOJO_NGINX_TAG}
+    container_name: test_nginx
+    depends_on:
+      - creator
+      - dashboard
+      - differ
+      - web
+    networks:
+      - cyber-dojo
+    ports: ["8180:80"]
+    restart: "no"
+    user: root
+    init: true
+
+  creator:
+    image: ${CYBER_DOJO_CREATOR_IMAGE}:${CYBER_DOJO_CREATOR_TAG}
+    container_name: test_nginx_creator
+    depends_on:
+      - custom-start-points
+      - exercises-start-points
+      - languages-start-points
+      - saver
+    networks:
+      - cyber-dojo
+    env_file: ["../ports.docker.env"]
+    read_only: true
+    restart: no
+    tmpfs: /tmp
+
+  dashboard:
+    image: ${CYBER_DOJO_DASHBOARD_IMAGE}:${CYBER_DOJO_DASHBOARD_TAG}
+    container_name: test_nginx_dashboard
+    depends_on:
+      - saver
+    networks:
+      - cyber-dojo
+    env_file: ["../ports.docker.env"]
+    read_only: true
+    restart: no
+    tmpfs: /tmp
+
+  differ:
+    image: ${CYBER_DOJO_DIFFER_IMAGE}:${CYBER_DOJO_DIFFER_TAG}
+    container_name: test_nginx_differ
+    depends_on:
+      - saver
+    networks:
+      - cyber-dojo
+    env_file: ["../ports.docker.env"]
+    read_only: true
+    restart: no
+    tmpfs: /tmp
+
+  web:
+    image: ${CYBER_DOJO_WEB_IMAGE}:${CYBER_DOJO_WEB_TAG}
+    container_name: test_nginx_web
+    depends_on:
+      - runner
+      - saver
+    networks:
+      - cyber-dojo
+    env_file: ["../ports.docker.env"]
+    restart: no
+
+  saver:
+    image: ${CYBER_DOJO_SAVER_IMAGE}:${CYBER_DOJO_SAVER_TAG}
+    container_name: test_nginx_saver
+    networks:
+      - cyber-dojo
+    env_file: ["../ports.docker.env"]
+    read_only: true
+    restart: no
+    tmpfs:
+      - /cyber-dojo:uid=19663,gid=65533
+      - /tmp:uid=19663,gid=65533
+
+  runner:
+    image: ${CYBER_DOJO_RUNNER_IMAGE}:${CYBER_DOJO_RUNNER_TAG}
+    container_name: test_nginx_runner
+    networks:
+      - cyber-dojo
+    env_file: ["../ports.docker.env"]
+    read_only: true
+    restart: no
+    tmpfs: /tmp
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+
+  custom-start-points:
+    image: ${CYBER_DOJO_CUSTOM_START_POINTS_IMAGE}:${CYBER_DOJO_CUSTOM_START_POINTS_TAG}
+    container_name: test_nginx_custom_start_points
+    networks:
+      - cyber-dojo
+    env_file: ["../ports.docker.env"]
+    read_only: true
+    restart: no
+    tmpfs: /tmp
+
+  exercises-start-points:
+    image: ${CYBER_DOJO_EXERCISES_START_POINTS_IMAGE}:${CYBER_DOJO_EXERCISES_START_POINTS_TAG}
+    container_name: test_nginx_exercises_start_points
+    networks:
+      - cyber-dojo
+    env_file: ["../ports.docker.env"]
+    read_only: true
+    restart: no
+    tmpfs: /tmp
+
+  languages-start-points:
+    image: ${CYBER_DOJO_LANGUAGES_START_POINTS_IMAGE}:${CYBER_DOJO_LANGUAGES_START_POINTS_TAG}
+    container_name: test_nginx_languages_start_points
+    networks:
+      - cyber-dojo
+    env_file: ["../ports.docker.env"]
+    read_only: true
+    restart: no
+    tmpfs: /tmp
