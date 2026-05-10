@@ -15,10 +15,10 @@ limit_req_zone $binary_remote_addr zone=group_fork:1m      rate=1r/m;
 limit_req_zone $binary_remote_addr zone=kata_file_create:1m  rate=1r/m;
 limit_req_zone $binary_remote_addr zone=kata_file_delete:1m  rate=1r/m;
 limit_req_zone $binary_remote_addr zone=kata_file_rename:1m  rate=1r/m;
-limit_req_zone $binary_remote_addr zone=kata_file_edit:1m    rate=1r/10s;
+limit_req_zone $binary_remote_addr zone=kata_file_edit:1m    rate=6r/m;
 limit_req_zone $binary_remote_addr zone=kata_option_set:1m   rate=1r/m;
 
-limit_req_zone $uri                zone=run_tests:1m        rate=1r/10s;
+limit_req_zone $uri                zone=run_tests:1m        rate=6r/m;
 
 server {
   listen ${CYBER_DOJO_NGINX_PORT};
