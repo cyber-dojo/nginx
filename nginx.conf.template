@@ -8,6 +8,7 @@ map $http_upgrade $connection_upgrade {
 
 limit_req_zone $binary_remote_addr zone=creator_create:1m rate=1r/m;
 limit_req_zone $binary_remote_addr zone=creator_enter:1m  rate=1r/m;
+limit_req_zone $uri                zone=run_tests:1m      rate=1r/10s;
 
 server {
   listen ${CYBER_DOJO_NGINX_PORT};
@@ -92,6 +93,16 @@ server {
       deny all;
     }
     proxy_pass http://$saver_hostname:${CYBER_DOJO_SAVER_PORT};
+  }
+
+  location ~ ^/kata/run_tests/ {
+    limit_req zone=run_tests burst=2 nodelay;
+    limit_req_status 429;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Host $http_host;
+    proxy_redirect off;
+    proxy_pass http://$web_hostname:${CYBER_DOJO_WEB_PORT};
   }
 
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
