@@ -130,7 +130,7 @@ server {
   }
 
   location = /kata/option_set {
-    limit_req zone=kata_option_set burst=3 nodelay;
+    limit_req zone=kata_option_set burst=4 nodelay;
     limit_req_status 429;
     try_files $uri @web;
   }
