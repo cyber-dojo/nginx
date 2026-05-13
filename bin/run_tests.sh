@@ -8,6 +8,7 @@ readonly COMPOSE_FILE="${TEST_DIR}/docker-compose.yml"
 
 source "${BIN_DIR}/echo_env_vars.sh"
 export $(echo_env_vars)
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
 docker build \
   --build-arg COMMIT_SHA="${CYBER_DOJO_NGINX_SHA}" \
