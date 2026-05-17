@@ -75,8 +75,8 @@ def test_c7a2f104():
 
 
 def test_c7a2f10d():
-    """Production image: GET /creator/choose_ltf burst=3 exhausts at 5th request."""
-    codes = _statuses("GET", "/creator/choose_ltf", 5)
+    """Production image: GET /creator/choose_ltf burst=10 exhausts at 12th request."""
+    codes = _statuses("GET", "/creator/choose_ltf", 12)
     assert codes[-1] == 429
     assert all(c != 429 for c in codes[:-1])
 
