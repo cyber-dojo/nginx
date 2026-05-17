@@ -8,7 +8,7 @@ map $http_upgrade $connection_upgrade {
 
 limit_req_zone $binary_remote_addr zone=creator_create:1m  rate=1r/m;
 limit_req_zone $binary_remote_addr zone=creator_enter:1m   rate=1r/m;
-limit_req_zone $binary_remote_addr zone=creator_choose:1m  rate=10r/m;
+limit_req_zone $binary_remote_addr zone=creator_choose:1m  rate=60r/m;
 
 limit_req_zone $binary_remote_addr zone=kata_fork:1m       rate=1r/m;
 limit_req_zone $binary_remote_addr zone=group_fork:1m      rate=1r/m;
@@ -76,7 +76,7 @@ server {
 
   location /creator/ {
     rewrite ^/creator/(.*) /$1 break;
-    limit_req zone=creator_choose burst=3 nodelay;
+    limit_req zone=creator_choose burst=10 nodelay;
     limit_req_status 429;
     limit_except GET {
       deny all;
