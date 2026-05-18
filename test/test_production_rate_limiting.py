@@ -54,8 +54,8 @@ def test_c7a2f10a():
 
 
 def test_c7a2f10b():
-    """Production image: POST /kata/file_edit burst=3 exhausts at 5th request."""
-    codes = _statuses("POST", "/kata/file_edit", 5)
+    """Production image: POST /kata/file_edit burst=10 exhausts at 12th request."""
+    codes = _statuses("POST", "/kata/file_edit", 12)
     assert codes[-1] == 429
     assert all(c != 429 for c in codes[:-1])
 
