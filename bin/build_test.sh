@@ -32,6 +32,7 @@ build_tagged_image()
 {
   echo; echo Building tagged image
   docker build \
+    --platform linux/amd64 \
     --no-cache \
     --build-arg COMMIT_SHA="${CYBER_DOJO_NGINX_SHA}" \
     --tag "$(tagged_image_name)" \
