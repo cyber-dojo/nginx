@@ -1,4 +1,4 @@
-FROM nginx:stable-alpine3.23@sha256:a8b39bd9cf0f83869a2162827a0caf6137ddf759d50a171451b335cecc87d236
+FROM nginx:stable-alpine3.23@sha256:83902b81d5d0ebfa863977a4ae2260c18bee6817fae0e534c57cab0c1d584a64
 LABEL maintainer=jon@jaggersoft.com
 
 RUN apk add bash tini
@@ -13,8 +13,6 @@ COPY bootstrap.sh /
 
 ARG COMMIT_SHA
 ENV SHA=${COMMIT_SHA}
-
-RUN apk add --upgrade openssl=3.5.6-r0  # https://security.snyk.io/vuln/SNYK-ALPINE322-OPENSSL-15993406
 
 COPY nginx.conf.template        /docker-entrypoint.d
 COPY ports.docker.env           /docker-entrypoint.d
