@@ -56,7 +56,6 @@ server {
   # https://medium.com/driven-by-code/dynamic-dns-resolution-in-nginx-22133c22e3ab
   set $creator_hostname ${CYBER_DOJO_CREATOR_HOSTNAME};
   set $dashboard_hostname ${CYBER_DOJO_DASHBOARD_HOSTNAME};
-  set $differ_hostname ${CYBER_DOJO_DIFFER_HOSTNAME};
   set $saver_hostname ${CYBER_DOJO_SAVER_HOSTNAME};
   set $web_hostname ${CYBER_DOJO_WEB_HOSTNAME};
 
@@ -90,14 +89,6 @@ server {
       deny all;
     }
     proxy_pass http://$dashboard_hostname:${CYBER_DOJO_DASHBOARD_PORT};
-  }
-
-  location /differ/ {
-    rewrite ^/differ/(.*) /$1 break;
-    limit_except GET {
-      deny all;
-    }
-    proxy_pass http://$differ_hostname:${CYBER_DOJO_DIFFER_PORT};
   }
 
   location /saver/ {
