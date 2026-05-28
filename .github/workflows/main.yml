@@ -31,11 +31,7 @@ jobs:
       image_tag:                ${{ steps.vars.outputs.image_tag }}
       image_name:               ${{ steps.vars.outputs.image_name }}
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          egress-policy: audit
-
+      - uses: cyber-dojo/harden-runner@main
       - uses: cyber-dojo/pinned-checkout@main
 
       - name: Set outputs
@@ -55,10 +51,8 @@ jobs:
           } >> ${GITHUB_OUTPUT}          
           
       - name: Begin Kosli Trail
-        if: ${{ github.ref == 'refs/heads/main' }}
         uses: cyber-dojo/kosli-begin-trail@main
         with:
-          cli_version: "${{ vars.KOSLI_CLI_VERSION }}"
           flow_description: "Reverse proxy"
 
 
@@ -71,17 +65,9 @@ jobs:
       contents:      read
       pull-requests: read
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          egress-policy: audit
-
+      - uses: cyber-dojo/harden-runner@main
       - uses: cyber-dojo/pinned-checkout@main
-
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v3
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
+      - uses: cyber-dojo/setup-kosli-cli@main
 
       - name: Attest pull-request evidence to Kosli
         run:
@@ -113,11 +99,7 @@ jobs:
     needs: [setup]
     runs-on: ubuntu-latest
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          egress-policy: audit
-
+      - uses: cyber-dojo/harden-runner@main
       - uses: cyber-dojo/pinned-checkout@main
 
       - name: Run tests
@@ -125,6 +107,7 @@ jobs:
 
 
   snyk-container-scan:
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: [build-image]
     uses: cyber-dojo/snyk-scanning/.github/workflows/artifact_snyk_test.yml@main
     with:
@@ -145,24 +128,17 @@ jobs:
       - snyk-container-scan
       - test
     runs-on: ubuntu-latest
-    env:
-      KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
     steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@v2
-        with:
-          egress-policy: audit
-
-      - name: Setup Kosli CLI
-        uses: kosli-dev/setup-cli-action@v3
-        with:
-          version: ${{ vars.KOSLI_CLI_VERSION }}
+      - uses: cyber-dojo/harden-runner@main
+      - uses: cyber-dojo/setup-kosli-cli@main
 
       - name: Display current compliance
         run:
           kosli get trail "${KOSLI_TRAIL}"
 
       - name: Kosli SDLC gate to short-circuit the workflow
+        env:
+          KOSLI_FINGERPRINT: ${{ needs.build-image.outputs.digest }}
         run:
           kosli assert artifact
             --environment=${KOSLI_AWS_BETA}
