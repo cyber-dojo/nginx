@@ -21,7 +21,7 @@ remove_all_but_latest()
   do
     if [ "${image}" != "${name}:latest" ]; then
       if [ "${image}" != "${name}:<none>" ]; then
-        docker image rm "${image}"
+        docker image rm --force "${image}"
       fi
     fi
   done
