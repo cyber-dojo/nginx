@@ -1,6 +1,5 @@
 *
 !images/
-!js/
 !template-port-env-subst.sh
 !gzip.conf
 !nginx.conf.template

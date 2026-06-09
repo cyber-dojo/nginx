@@ -7,7 +7,6 @@ RUN apk upgrade
 ARG NGINX_DIR=/usr/share/nginx/html
 RUN      rm -rf ${NGINX_DIR}
 COPY     images ${NGINX_DIR}/images
-COPY     js     ${NGINX_DIR}/js
 RUN chmod -R +r ${NGINX_DIR}
 COPY bootstrap.sh /
 
