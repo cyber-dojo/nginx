@@ -8,4 +8,4 @@ trail:
     - name: nginx
       attestations:
         - name: snyk-container-scan
-          type: generic
+          type: decision
