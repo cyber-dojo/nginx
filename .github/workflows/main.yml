@@ -166,13 +166,11 @@ jobs:
       tf_version: v1.14.9
       tf_vars: |
         TF_VAR_TAGGED_IMAGE=${{ needs.build-image.outputs.tagged_image_name }}@sha256:${{ needs.build-image.outputs.digest }}
-      kosli_host: ${KOSLI_HOST}
+      kosli_host: ${{ vars.KOSLI_HOST }}
       kosli_template_file: flow-templates/kosli-apply.yml
     secrets:
       kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
       kosli_github_token: ${{ secrets.GITHUB_TOKEN }}
-
-
 
 # Deployment to aws-prod Environment is done with a Promotion workflow.
 # See https://github.com/cyber-dojo/aws-prod-co-promotion
