@@ -167,6 +167,7 @@ jobs:
       tf_vars: |
         TF_VAR_TAGGED_IMAGE=${{ needs.build-image.outputs.tagged_image_name }}@sha256:${{ needs.build-image.outputs.digest }}
       kosli_host: ${{ vars.KOSLI_HOST }}
+      kosli_org: cyber-dojo
       kosli_template_file: flow-templates/kosli-apply.yml
     secrets:
       kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
