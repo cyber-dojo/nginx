@@ -37,7 +37,16 @@ server {
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Home page redirects...
 
-  rewrite ^/$              /creator/home permanent;
+  # Emit relative Location headers so redirects keep the port the client
+  # connected on. With absolute_redirect on (the default) nginx builds the
+  # Location from server_name and its internal listen port, which drops the
+  # published host port when they differ.
+  absolute_redirect off;
+
+  # 302 (redirect), not 301 (permanent), for the live entry point: browsers
+  # cache a 301 persistently, so a stale one (eg pointing at the wrong port)
+  # survives an image change and is painful to evict from every client.
+  rewrite ^/$              /creator/home redirect;
   rewrite ^/dojo/index(.*) /creator/home permanent;
 
 
