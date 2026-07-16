@@ -4,6 +4,12 @@ LABEL maintainer=jon@jaggersoft.com
 RUN apk add bash tini
 RUN apk upgrade
 
+# Remove curl (and libcurl, which only curl needs). nginx never uses curl at
+# runtime, so deleting it clears the recurring Alpine libcurl CVEs from the
+# Snyk scan instead of waiting for each Alpine fix to be published. Mirrors the
+# equivalent removal (of git) in the runner repo's Dockerfile.
+RUN apk del curl
+
 ARG NGINX_DIR=/usr/share/nginx/html
 RUN      rm -rf ${NGINX_DIR}
 COPY     images ${NGINX_DIR}/images
