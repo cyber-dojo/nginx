@@ -92,8 +92,9 @@ server {
     proxy_pass http://$creator_hostname:${CYBER_DOJO_CREATOR_PORT};
   }
 
+  # No rewrite here: the dashboard app mounts itself at /dashboard and serves
+  # the path intact. The other prefixed locations below still strip theirs.
   location /dashboard/ {
-    rewrite ^/dashboard/(.*) /$1 break;
     limit_except GET {
       deny all;
     }
