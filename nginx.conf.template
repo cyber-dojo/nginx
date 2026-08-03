@@ -68,22 +68,38 @@ server {
   set $saver_hostname ${CYBER_DOJO_SAVER_HOSTNAME};
   set $web_hostname ${CYBER_DOJO_WEB_HOSTNAME};
 
+  # No rewrite in the creator locations: the creator app mounts itself at
+  # /creator and serves the path intact.
+
+  # The probes sit outside the rate-limited locations below. Every path under
+  # location /creator/ draws on one 60r/m zone, so a probe would spend budget
+  # meant for user traffic, and would make that budget depend on how often
+  # anything probes.
+  location = /creator/alive {
+    proxy_pass http://$creator_hostname:${CYBER_DOJO_CREATOR_PORT};
+  }
+
+  location = /creator/ready {
+    proxy_pass http://$creator_hostname:${CYBER_DOJO_CREATOR_PORT};
+  }
+
+  location = /creator/status {
+    proxy_pass http://$creator_hostname:${CYBER_DOJO_CREATOR_PORT};
+  }
+
   location = /creator/create.json {
     limit_req zone=creator_create burst=3 nodelay;
     limit_req_status 429;
-    rewrite ^/creator/(.*) /$1 break;
     proxy_pass http://$creator_hostname:${CYBER_DOJO_CREATOR_PORT};
   }
 
   location = /creator/enter.json {
     limit_req zone=creator_enter burst=3 nodelay;
     limit_req_status 429;
-    rewrite ^/creator/(.*) /$1 break;
     proxy_pass http://$creator_hostname:${CYBER_DOJO_CREATOR_PORT};
   }
 
   location /creator/ {
-    rewrite ^/creator/(.*) /$1 break;
     limit_req zone=creator_choose burst=10 nodelay;
     limit_req_status 429;
     limit_except GET {

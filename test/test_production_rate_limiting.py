@@ -75,10 +75,16 @@ def test_c7a2f104():
 
 
 def test_c7a2f10d():
-    """Production image: GET /creator/choose_ltf burst=10 exhausts at 12th request."""
+    """Production image: GET /creator/choose_ltf burst=10 exhausts at 12th request.
+
+    The unlimited requests must answer 200, not merely avoid 429: nginx passes
+    /creator/... through with its prefix intact, and the creator app serves it
+    from its own /creator mount. A 404 here means either a rewrite came back or
+    the app is serving only at /.
+    """
     codes = _statuses("GET", "/creator/choose_ltf", 12)
     assert codes[-1] == 429
-    assert all(c != 429 for c in codes[:-1])
+    assert all(c == 200 for c in codes[:-1]), codes
 
 
 def test_c7a2f105():
