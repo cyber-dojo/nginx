@@ -6,6 +6,28 @@ map $http_upgrade $connection_upgrade {
   '' close;
 }
 
+# Who is allowed to tell us the client's address, and in which header.
+#
+# Every limit_req_zone below keys on $binary_remote_addr. Behind an ALB, which
+# terminates the connection, that is the ALB's address, so without this every
+# client shares one bucket: /creator/create.json at 1r/m burst=3 means four
+# kata creations per minute for everyone, not per user.
+#
+# The trust boundary is the whole safety argument. nginx believes
+# X-Forwarded-For from any peer inside CYBER_DOJO_TRUSTED_PROXY_CIDR, so that
+# value must cover the proxies in front of it and nothing else: a client that
+# reaches nginx directly from a trusted range can spoof its address and
+# sidestep every zone. In ECS the whole private range is trusted, which is no
+# weaker than naming the VPC exactly because the tasks' security group admits
+# the ALB alone, and it survives any re-addressing of the VPC. Under docker,
+# where nginx is itself the edge, it trusts loopback only.
+#
+# real_ip_recursive stays off (the default): the ALB appends the client address
+# as the last X-Forwarded-For entry, which is then what nginx uses. Another
+# proxy in front of the ALB would need recursive on and its range trusted too.
+set_real_ip_from ${CYBER_DOJO_TRUSTED_PROXY_CIDR};
+real_ip_header   X-Forwarded-For;
+
 # Every rate is a variable so a test run can turn it up while exercising this
 # same image and template. The production values live in the ports.*.env files
 # and are what nginx's own tests assert. Browser tests elsewhere load several
