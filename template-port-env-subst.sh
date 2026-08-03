@@ -22,6 +22,16 @@ ports_filename()
 
 readonly template_path="${nginx_docker_dir}/nginx.conf.template"
 readonly defined_envs="$(printf '${SHA}'; printf '${%s}' $(cat "$(ports_filename)" | cut -d= -f1))"
-export $(cat "$(ports_filename)")
+
+# The file holds the defaults. An already-set environment variable wins, so a
+# caller (eg a test run turning a rate limit up) can override one value without
+# copying the whole file.
+while IFS='=' read -r key value; do
+  [ -z "${key}" ] && continue
+  if [ -z "${!key}" ]; then
+    export "${key}=${value}"
+  fi
+done < "$(ports_filename)"
+
 export SHA="${SHA}"
 envsubst "${defined_envs}" < "${template_path}" > "/etc/nginx/conf.d/default.conf"
