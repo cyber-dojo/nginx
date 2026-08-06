@@ -3,6 +3,7 @@ ADR: nginx rate limiting for POST routes
 
 Status: Accepted
 Date: 2026-05-10
+Amended: 2026-08-06 (see Amendments, at the end)
 
 Context
 -------
@@ -134,3 +135,25 @@ Consequences
   - A sophisticated attacker spreading calls across many kata IDs would bypass
     per-kata rate limiting. At that point the problem becomes runner resource
     exhaustion, which is a separate concern (runner sandboxing, timeouts).
+
+
+Amendments
+----------
+
+2026-08-06: the two fork routes were renamed
+
+  /kata/fork  is now  /fork/kata
+  /group/fork is now  /fork/group
+
+  The rows in the Decision table above, and the route names under
+  Alternatives considered, are left as they were written: they record what
+  was decided in May 2026.
+
+  Nothing about the decision changed - same zones, same keys, same rates and
+  bursts. web is being split into one app per path prefix, and the two fork
+  routes were the pair that collided, since both strip to /fork. Renaming
+  them puts the shared word in the mount and the differing word in the route.
+
+  The rename went out as four independently revertable deploys, two here and
+  two in web, with both spellings served in between so that no nginx release
+  and web release had to land together.
