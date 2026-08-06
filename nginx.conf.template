@@ -182,24 +182,8 @@ server {
     try_files $uri @web;
   }
 
-  # Each fork answers at two paths while the fork-button JavaScript moves onto
-  # the /fork prefix. Both spellings share one zone, so a client cannot double
-  # its fork rate by alternating between them.
-
-  location = /kata/fork {
-    limit_req zone=kata_fork burst=3 nodelay;
-    limit_req_status 429;
-    try_files $uri @web;
-  }
-
   location = /fork/kata {
     limit_req zone=kata_fork burst=3 nodelay;
-    limit_req_status 429;
-    try_files $uri @web;
-  }
-
-  location = /group/fork {
-    limit_req zone=group_fork burst=3 nodelay;
     limit_req_status 429;
     try_files $uri @web;
   }
