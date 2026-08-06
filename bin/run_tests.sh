@@ -31,5 +31,11 @@ docker compose \
   --wait \
   --wait-timeout 60
 
-python3 -m pip install --quiet --requirement "${TEST_DIR}/requirements.txt"
-python3 -m pytest "${TEST_DIR}/" --verbose "$@"
+# The requirements go into a venv rather than the host interpreter, which
+# refuses a system-wide install when it is externally managed (PEP 668) - the
+# default for Homebrew and for recent distro pythons. Creating an existing
+# venv again is a no-op, so this costs nothing on repeat runs.
+readonly VENV_DIR="$(repo_root)/.venv"
+python3 -m venv "${VENV_DIR}"
+"${VENV_DIR}/bin/pip" install --quiet --requirement "${TEST_DIR}/requirements.txt"
+"${VENV_DIR}/bin/pytest" "${TEST_DIR}/" --verbose "$@"

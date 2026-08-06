@@ -20,6 +20,9 @@ snyk-code:
 		--sarif-file-output=snyk.code.scan.json \
         --policy-path=.snyk
 
+# Run all the tests, or optionally only those whose test-id matches.
+#   eg make test tids=c7a2f103
+#   eg make test tids="c7a2f103 or c7a2f107"
 test:
-	${PWD}/bin/run_tests.sh
+	${PWD}/bin/run_tests.sh $(if ${tids},-k "${tids}")
 

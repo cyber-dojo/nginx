@@ -19,17 +19,27 @@ def test_c7a2f106():
 
 
 def test_c7a2f103():
-    """Production image: POST /kata/fork burst=3 exhausts at 5th request."""
-    codes = _statuses("POST", "/kata/fork", 5)
-    assert codes[-1] == 429
-    assert all(c != 429 for c in codes[:-1])
+    """Production image: POST fork-a-kata burst=3 exhausts at 5th request.
+
+    /kata/fork and /fork/kata both reference the kata_fork zone, so they draw
+    on one budget: four requests on the old spelling exhaust the burst and a
+    fifth on the new spelling is refused. Anything but 429 on that fifth means
+    /fork/kata fell through to location / and is unlimited.
+    """
+    codes = _statuses("POST", "/kata/fork", 4)
+    assert all(c != 429 for c in codes), codes
+    assert _statuses("POST", "/fork/kata", 1)[0] == 429
 
 
 def test_c7a2f107():
-    """Production image: POST /group/fork burst=3 exhausts at 5th request."""
-    codes = _statuses("POST", "/group/fork", 5)
-    assert codes[-1] == 429
-    assert all(c != 429 for c in codes[:-1])
+    """Production image: POST fork-a-group burst=3 exhausts at 5th request.
+
+    /group/fork and /fork/group share the group_fork zone, as the kata pair
+    above share theirs.
+    """
+    codes = _statuses("POST", "/group/fork", 4)
+    assert all(c != 429 for c in codes), codes
+    assert _statuses("POST", "/fork/group", 1)[0] == 429
 
 
 def test_c7a2f108():

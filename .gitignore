@@ -1,3 +1,5 @@
+.venv/
+__pycache__/
 snyk.container.scan.json
 snyk.code.scan.json
 .DS_Store
