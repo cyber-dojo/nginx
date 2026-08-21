@@ -6,23 +6,28 @@ readonly BIN_DIR="$(repo_root)/bin"
 source "${BIN_DIR}/echo_env_vars.sh"
 export $(echo_env_vars)
 
-remove_old_image_layers()
+remove_old_images()
 {
-  echo; echo Removing old image layers
+  echo; echo Removing old images
   local -r dil=$(docker image ls --format "{{.Repository}}:{{.Tag}}")
-  remove_all_but_latest "${dil}" "${CYBER_DOJO_NGINX_IMAGE}"
+  remove_all_but_current "${dil}" "${CYBER_DOJO_NGINX_IMAGE}"
 }
 
-remove_all_but_latest()
+# Keeps :latest, which local tooling in dependent repos refers to, and this
+# commit's tag, which names the build just made. Every older tag goes, and an
+# earlier build whose last tag was one of those goes with it.
+remove_all_but_current()
 {
   local -r docker_image_ls="${1}"
   local -r name="${2}"
-  for image in $(echo "${docker_image_ls}" | grep "${name}:")
+  # grep exits non-zero when the machine holds no nginx image, eg one whose
+  # images have just been cleared, so an empty list must not end the build.
+  local tagged_name
+  for tagged_name in $(echo "${docker_image_ls}" | grep "^${name}:" || true)
   do
-    if [ "${image}" != "${name}:latest" ]; then
-      if [ "${image}" != "${name}:<none>" ]; then
-        docker image rm --force "${image}" || echo "  skipped ${image} (in use)"
-      fi
+    if [ "${tagged_name}" != "${name}:latest" ] \
+    && [ "${tagged_name}" != "$(tagged_image_name)" ]; then
+      docker image rm --force "${tagged_name}" || echo "  skipped ${tagged_name} (in use)"
     fi
   done
 }
@@ -75,9 +80,12 @@ sha_inside_image()
   docker run --rm "$(tagged_image_name)" sh -c 'echo ${SHA}'
 }
 
-remove_old_image_layers
 build_tagged_image
 tag_image_to_latest
+# After tagging, so removing an earlier build's tags takes its last tag with
+# them and the image itself goes, rather than being left dangling when :latest
+# moves to this build.
+remove_old_images
 check_embedded_SHA_env_var
 show_SHA_env_var
 
