@@ -87,8 +87,8 @@ jobs:
       KOSLI_DRY_RUN:   ${{ vars.KOSLI_DRY_RUN }}
       KOSLI_HOST:      ${{ vars.KOSLI_HOST }}
       KOSLI_ORG:       ${{ vars.KOSLI_ORG }}
-      KOSLI_FLOW:      nginx-drift
-      KOSLI_TRAIL:     ${{ inputs.environment }}-${{ github.run_number }}
+      KOSLI_FLOW:      aws-${{ inputs.environment }}-drift-nginx
+      KOSLI_TRAIL:     run-${{ github.run_number }}
     steps:
       - uses: cyber-dojo/harden-runner@main
       - uses: cyber-dojo/pinned-checkout@main
@@ -138,7 +138,7 @@ jobs:
 
       - name: Begin Kosli Trail
         run: |
-          kosli create flow "${KOSLI_FLOW}" --description="nginx drift detection" --template-file=flow-templates/kosli-drift.yml
+          kosli create flow "${KOSLI_FLOW}" --description="nginx drift detection in aws-${{ inputs.environment }}" --template-file=flow-templates/kosli-drift.yml
           kosli begin trail "${KOSLI_TRAIL}"
 
       # An empty drift output compares unequal to 'false', so a failed read is
