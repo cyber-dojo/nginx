@@ -91,6 +91,7 @@ jobs:
       KOSLI_TRAIL:     ${{ inputs.environment }}-${{ github.run_number }}
     steps:
       - uses: cyber-dojo/harden-runner@main
+      - uses: cyber-dojo/pinned-checkout@main
       - uses: cyber-dojo/setup-kosli-cli@main
 
       - name: Configure AWS credentials
@@ -137,7 +138,7 @@ jobs:
 
       - name: Begin Kosli Trail
         run: |
-          kosli create flow "${KOSLI_FLOW}" --description="nginx drift detection"
+          kosli create flow "${KOSLI_FLOW}" --description="nginx drift detection" --template-file=flow-templates/kosli-drift.yml
           kosli begin trail "${KOSLI_TRAIL}"
 
       # An empty drift output compares unequal to 'false', so a failed read is
