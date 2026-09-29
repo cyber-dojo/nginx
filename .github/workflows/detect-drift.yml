@@ -23,6 +23,7 @@ jobs:
       id-token: write
       contents: write
     uses: ./.github/workflows/detect-drift-env.yml
+    secrets: inherit
     with:
       aws_account_id: ${{ matrix.aws_account_id }}
       environment: ${{ matrix.environment }}

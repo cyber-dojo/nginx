@@ -66,3 +66,86 @@ jobs:
       working_directory: deployment/terraform-nginx/
       tf_version: v1.14.9
       tf_vars: TF_VAR_TAGGED_IMAGE=${{ needs.image.outputs.image }}
+
+  # Attests the drift result as a decision against the drift-detection control.
+  # The shared workflow has no outputs, so the result is read back from the
+  # drift baseline it keeps in S3. It runs even when detect-drift fails. The AWS
+  # steps may fail without stopping the job, so that a failure to read the
+  # baseline is still attested, as non-compliant. Only a successful run with a
+  # clean baseline is attested as compliant.
+  attest-drift:
+    needs: detect-drift
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      KOSLI_API_TOKEN: ${{ secrets.KOSLI_API_TOKEN }}
+      KOSLI_DEBUG:     ${{ vars.KOSLI_DEBUG }}
+      KOSLI_DRY_RUN:   ${{ vars.KOSLI_DRY_RUN }}
+      KOSLI_HOST:      ${{ vars.KOSLI_HOST }}
+      KOSLI_ORG:       ${{ vars.KOSLI_ORG }}
+      KOSLI_FLOW:      nginx-drift
+      KOSLI_TRAIL:     ${{ inputs.environment }}-${{ github.run_number }}
+    steps:
+      - uses: cyber-dojo/harden-runner@main
+      - uses: cyber-dojo/setup-kosli-cli@main
+
+      - name: Configure AWS credentials
+        continue-on-error: true
+        timeout-minutes: 2
+        uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
+        with:
+          role-to-assume: arn:aws:iam::${{ inputs.aws_account_id }}:role/gh_actions_services
+          aws-region: eu-central-1
+          role-session-name: ${{ github.event.repository.name }}
+          action-timeout-s: 45
+          retry-max-attempts: 3
+
+      # The bucket name and key are computed exactly as kosli-dev/tf's
+      # detect-drift.yml computes them. The baseline's drift field is false
+      # when clean and a timestamp once drift has been detected. The drift
+      # output is written only once the baseline has been read, so any failure
+      # leaves it empty.
+      - name: Read drift baseline
+        id: read
+        continue-on-error: true
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          HASH=$(printf '%s-%s' "${ACCOUNT_ID}" eu-central-1 | sha1sum | cut -d' ' -f1)
+          KEY="terraform/${{ github.event.repository.name }}/drift.plan.json"
+          aws s3 cp "s3://terraform-state-${HASH}/${KEY}" drift.plan.json
+          DRIFT=$(jq -r '.drift | tostring' drift.plan.json)
+          echo "drift=${DRIFT}" >> "${GITHUB_OUTPUT}"
+
+      # The evidence records why the decision came out as it did, including
+      # when the baseline could not be read.
+      - name: Write decision evidence
+        run: |
+          BASELINE=null
+          if jq empty drift.plan.json 2>/dev/null; then
+            BASELINE=$(cat drift.plan.json)
+          fi
+          jq -n \
+            --arg detect_drift_result "${{ needs.detect-drift.result }}" \
+            --arg read_baseline_outcome "${{ steps.read.outcome }}" \
+            --argjson baseline "${BASELINE}" \
+            '{detect_drift_result: $detect_drift_result, read_baseline_outcome: $read_baseline_outcome, baseline: $baseline}' \
+            > drift-evidence.json
+
+      - name: Begin Kosli Trail
+        run: |
+          kosli create flow "${KOSLI_FLOW}" --description="nginx drift detection"
+          kosli begin trail "${KOSLI_TRAIL}"
+
+      # An empty drift output compares unequal to 'false', so a failed read is
+      # attested as non-compliant.
+      - name: Attest SDLC-CTRL-0018 decision
+        run:
+          kosli attest decision
+            --control SDLC-CTRL-0018
+            --compliant ${{ needs.detect-drift.result == 'success' && steps.read.outputs.drift == 'false' }}
+            --name drift-detection
+            --user-data drift-evidence.json
