@@ -82,8 +82,19 @@ server {
 
   location = /favicon.ico {
     root /usr/share/nginx/html/images;
+    expires 1d;
   }
   rewrite ^/assets/favicon-(.*).ico /usr/share/nginx/html/images/favicon.ico permanent;
+
+  #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Images are cached for a day (Cache-Control: max-age=86400), so a changed
+  # image (eg a recoloured traffic-light) reaches every browser within a day
+  # of a deploy, with no request at all for an image fetched in the last day.
+
+  location /images/ {
+    expires 1d;
+    try_files $uri @web; # as location / does
+  }
 
   #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Microservices
