@@ -103,6 +103,8 @@ jobs:
       attest_to_kosli: ${{ github.ref == 'refs/heads/main' }}
     secrets:
       kosli_api_token: ${{ secrets.KOSLI_API_TOKEN }}
+      docker_user: ${{ secrets.DOCKER_USER }}
+      docker_pass: ${{ secrets.DOCKER_PASS }}
 
 
   test:
