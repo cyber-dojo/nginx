@@ -143,6 +143,8 @@ server {
     limit_except GET {
       deny all;
     }
+    # creator builds its redirects from Host, so it must see the client's.
+    proxy_set_header Host $http_host;
     proxy_pass http://$creator_hostname:${CYBER_DOJO_CREATOR_PORT};
   }
 

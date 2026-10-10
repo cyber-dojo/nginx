@@ -19,6 +19,25 @@ services:
     restart: "no"
     user: root
 
+  # The same image with creator's choose rate turned up, and buckets of its
+  # own. A behavioural test that is not about rate limiting runs against this
+  # one, so it spends none of the budget the rate-limiting tests count on.
+  nginx-high-rate:
+    image: ${CYBER_DOJO_NGINX_IMAGE}:${CYBER_DOJO_NGINX_TAG}
+    container_name: test_nginx_high_rate
+    depends_on:
+      - creator
+      - dashboard
+      - differ
+      - web
+    environment:
+      CYBER_DOJO_CREATOR_CHOOSE_RATE: 6000r/m
+    networks:
+      - cyber-dojo
+    ports: ["8181:80"]
+    restart: "no"
+    user: root
+
   creator:
     image: ${CYBER_DOJO_CREATOR_IMAGE}:${CYBER_DOJO_CREATOR_TAG}
     container_name: test_nginx_creator
