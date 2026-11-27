@@ -85,9 +85,21 @@ jobs:
             --name=pull-request
 
 
+  # The bare image: the Dockerfile's base stage, only the pinned nginx FROM,
+  # one per platform, as the artifacts nginx-bare-image-amd64 and -arm64,
+  # with their digests. build-image builds the deployed image FROM each,
+  # checking the digests. It needs nothing from setup, so it runs alongside it.
+  bare-image:
+    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/build-bare-image.yml@main
+    with:
+      checkout_repository: cyber-dojo/nginx
+      checkout_ref: ${{ github.sha }}
+      artifact_prefix: nginx-bare-image
+
+
   build-image:
-    needs: [setup]
-    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/secure-docker-build.yml@main
+    needs: [setup, bare-image]
+    uses: cyber-dojo/reusable-actions-workflows/.github/workflows/secure-docker-build-from-bare-image.yml@main
     with:
       checkout_repository: cyber-dojo/nginx
       checkout_ref: ${{ github.sha }}
@@ -96,6 +108,9 @@ jobs:
       image_tag: ${{ needs.setup.outputs.image_tag }}
       image_build_args: |
         COMMIT_SHA=${{ github.sha }}
+      bare_image_artifact_prefix: nginx-bare-image
+      bare_image_digest_amd64: ${{ needs.bare-image.outputs.digest_amd64 }}
+      bare_image_digest_arm64: ${{ needs.bare-image.outputs.digest_arm64 }}
       kosli_flow: ${{ vars.KOSLI_FLOW }}
       kosli_trail: ${{ github.sha }}
       kosli_reference_name: ${{ needs.setup.outputs.service_name }}

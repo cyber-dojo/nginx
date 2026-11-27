@@ -1,6 +1,12 @@
 # Pinned to the tag's multi-platform index digest, not one platform's manifest,
 # so the same pin serves the linux/amd64 and linux/arm64 builds.
-FROM nginx:stable-alpine3.23@sha256:0d3b80406a13a767339fbe2f41406d6c7da727ab89cf8fae399e81f780f814d1
+FROM nginx:stable-alpine3.23@sha256:0d3b80406a13a767339fbe2f41406d6c7da727ab89cf8fae399e81f780f814d1 AS base
+
+# The stage above, base, is the bare image the workflow builds and caches
+# (build-bare-image.yml), and the stage below is built FROM it. base holds
+# only the pinned FROM, so the apk lines below still run on every build and
+# the packages are always as new as the build.
+FROM base
 LABEL maintainer=jon@jaggersoft.com
 
 RUN apk add bash tini
